@@ -30,20 +30,38 @@
         this.dragEnter = args.dragEnter;
         this.dragOver = args.dragOver;
         this.dragLeave = args.dragLeave;
+        this.sortable = args.sortable;
         this.active = false;
         this.inside = false;
         this.dirty = false;
     };
 
-    Zone.prototype.refreshDomInfo = function () {
+    Zone.prototype.refreshDomInfo = function (dragElement, e) {
         var $element = this.$element;
         var offset = $element.offset();
         this.top = offset.top;
         this.left = offset.left;
         this.width = $element.outerWidth();
         this.height = $element.outerHeight();
+        if (this.sortable) {
+            this.refreshListPositions(dragElement, e);
+        }
     };
 
+    Zone.prototype.refreshListPositions = function (dragele, event) {
+        var that = this;
+        var data = dragele.data;
+        var listElements = this.$element.find('.draggable:not(.drag-element)');
+        var x = event.pageX - window.pageXOffset,
+            y = event.pageY - window.pageYOffset;
+        listElements.each(function () {
+            var bounds = this.getBoundingClientRect();
+            if (that.isInside.call(bounds, x, y)) {
+                that.drop(data, $(this));
+                return;
+            }
+        });
+    };
 
     Zone.prototype.isInside = function (x, y) {
         if (x < this.left || y < this.top) {
@@ -99,8 +117,14 @@
 
     function DropZone(args) {
         this.init(args);
-        this.drop = function (data) {
-            args.drop(data, args.data);
+
+        this.drop = function (data, specificTarget) {
+            if (args.sortable) {
+                var index = $(specificTarget).index();
+                args.drop(data, args.data, index);
+            } else {
+                args.drop(data, args.data);
+            }
         };
     }
     DropZone.prototype = Zone.prototype;
@@ -152,7 +176,7 @@
         var zones = dropZones[name].concat(eventZones[name]);
 
         forEach(zones, function (zone) {
-            zone.refreshDomInfo();
+            zone.refreshDomInfo(that, event);
         });
 
         forEach(zones, function (zone) {
@@ -203,7 +227,7 @@
             this.dragEnd(this.data);
         }
 
-        if (winningDropZone && winningDropZone.drop) {
+        if ((winningDropZone && winningDropZone.drop) && !winningDropZone.sortable) {
             winningDropZone.drop(this.data);
         }
     };
@@ -250,7 +274,8 @@
                     drop: options.drop,
                     dragEnter: options.dragEnter,
                     dragOver: options.dragOver,
-                    dragLeave: options.dragLeave
+                    dragLeave: options.dragLeave,
+                    sortable: options.sortable
                 });
                 dropZones[name].push(zone);
 
@@ -324,6 +349,14 @@
 
                 $(element).addClass('draggable');
                 $(element).on('mousedown', function (downEvent) {
+
+                    if (options.handle) {
+                        //if mousedown is not on handle element 
+                        if (!($(downEvent.target).closest($(element).find(options.handle)).length > 0)) {
+                            return;
+                        }
+                    }
+
                     if (downEvent.which !== 1) {
                         return true;
                     }
