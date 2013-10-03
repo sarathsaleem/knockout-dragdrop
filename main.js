@@ -10,6 +10,16 @@
         'Camille',
         'Aiden'
     ];
+    
+    var sort = [
+        '1 One',
+        '2 Two',
+        '3 Three',
+        '4 Four',
+        '5 Five',
+        '6 Six',
+        '7 Seven'   
+    ];
 
     var model = {
         simple: {
@@ -60,6 +70,50 @@
                 model.target.remove(data);
                 model.source.push(data);
             }
+        },
+        sortable: {            
+            dragStart: function (item) {
+                item.dragging(true);
+            },
+            dragEnd: function (item) {
+                item.dragging(false);
+            },
+            dropFn: function (data, model, index) {
+                model.source.remove(data);
+                if (index !== undefined) {
+                    model.source.splice(index, 0, data);
+                } else {
+                    model.source.push(data);
+                }
+            },
+            source: ko.observableArray(ko.utils.arrayMap(sort, function (name) {
+                return {
+                    value: name,
+                    dragging: ko.observable(false)
+                };
+            }))
+        },
+        sortableHandle: {            
+            dragStart: function (item) {
+                item.dragging(true);
+            },
+            dragEnd: function (item) {
+                item.dragging(false);
+            },
+            dropFn: function (data, model, index) {                
+                model.source.remove(data);
+                if (index !== undefined) {
+                    model.source.splice(index, 0, data);
+                } else {
+                    model.source.push(data);
+                }
+            },
+            source: ko.observableArray(ko.utils.arrayMap(sort, function (name) {
+                return {
+                    value: name,
+                    dragging: ko.observable(false)
+                };
+            }))
         }
     };
     ko.applyBindings(model, $('.demo')[0]);

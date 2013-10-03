@@ -63,6 +63,29 @@
                     </ul>
                 </div>
             </div>
+            <div class="sortable" data-bind="with: sortable">
+                <h1>Sort the list</h1>
+                <div class="zones">
+                    <ul class="source" data-bind="foreach: source, dropZone: { name: 'source', drop: dropFn , sortable:true}">
+                         <li data-bind="css: { sorting: dragging }, dragZone: { name: 'source', dragStart: $parent.dragStart, dragEnd: $parent.dragEnd}">
+                             <span data-bind="text:value"></span>                             
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="sortable" data-bind="with: sortableHandle">
+                <h1>Sort the list with specific handler</h1>
+                <p>Can specify as option in <b> dragZone </b>. If specified, restricts dragging from starting unless the mousedown occurs on the specified element, Only elements that descend from the draggable element are permitted.</p>
+                <div class="zones">
+                    <ul class="source" data-bind="foreach: source, dropZone: { name: 'source', drop: dropFn , sortable:true}">
+                         <li data-bind="css: { sorting: dragging }, dragZone: { name: 'source', dragStart: $parent.dragStart, dragEnd: $parent.dragEnd , handle : '.drag-handle' }">
+                             <span data-bind="text:value"></span>
+                             <span class="drag-handle"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
         </div>
 
         <a href="https://github.com/One-com/knockout-dragdrop"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
