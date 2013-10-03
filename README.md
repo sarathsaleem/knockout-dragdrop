@@ -47,6 +47,49 @@ var model = {
 ko.applyBindings(model);
 ```
 
+Use as **Sortable:**
+```html
+<h2>Sort the list</h2>
+<ul data-bind="foreach: source, dropZone: { name: 'source', drop: drop , sortable:true }">
+	 <li data-bind="text: value, css: { dragging: dragging }, dragZone: { name: 'source', dragStart: $parent.dragStart, dragEnd: $parent.dragEnd}">
+</ul>
+```
+
+```js
+var names = [
+        '1 One',
+        '2 Two',
+        '3 Three',
+        '4 Four',
+        '5 Five',
+        '6 Six'        
+    ];
+
+var model = {	
+	dragStart: function (item) {
+		item.dragging(true);
+	},
+	dragEnd: function (item) {
+		item.dragging(false);
+	},
+	drop: function (data, model, index) {           
+        model.source.remove(data);
+        if(index !== undefined){
+             model.source.splice(index, 0, data);
+        } else {
+             model.source.push(data);
+        }
+    },
+	source: ko.observableArray(ko.utils.arrayMap(names, function (name) {
+		return {
+			value: name,
+			dragging: ko.observable(false)
+		};
+	}))
+};
+ko.applyBindings(model);
+```
+
 ## License
 
 Knockout.dragdrop is licensed under a standard 3-clause BSD license -- see the `LICENSE`-file for details.
